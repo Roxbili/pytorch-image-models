@@ -178,6 +178,9 @@ default_cfgs = {
             '/vit_base_patch16_224_1k_miil_84_4.pth',
         mean=(0, 0, 0), std=(1, 1, 1), crop_pct=0.875, interpolation='bilinear',
     ),
+
+    # my model
+    'my_vit': _cfg(url=''),
 }
 
 
@@ -185,7 +188,7 @@ class Attention(nn.Module):
     def __init__(self, dim, num_heads=8, qkv_bias=False, attn_drop=0., proj_drop=0.):
         super().__init__()
         self.num_heads = num_heads
-        head_dim = dim // num_heads
+        head_dim = dim // num_heads     # 可以发现，embedding dim是不会变的，反而是head_dim随着num_heads个数改变而改变
         self.scale = head_dim ** -0.5
 
         self.qkv = nn.Linear(dim, dim * 3, bias=qkv_bias)
@@ -921,4 +924,10 @@ def vit_base_patch16_224_miil(pretrained=False, **kwargs):
     """
     model_kwargs = dict(patch_size=16, embed_dim=768, depth=12, num_heads=12, qkv_bias=False, **kwargs)
     model = _create_vision_transformer('vit_base_patch16_224_miil', pretrained=pretrained, **model_kwargs)
+    return model
+
+@register_model
+def my_vit(pretrained=False, **kwargs):
+    model_kwargs = dict(patch_size=16, embed_dim=768, depth=1, num_heads=2, qkv_bias=False, **kwargs)
+    model = _create_vision_transformer('my_vit', pretrained=pretrained, **model_kwargs)
     return model

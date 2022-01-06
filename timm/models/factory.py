@@ -78,7 +78,7 @@ def create_model(
         raise RuntimeError('Unknown model (%s)' % model_name)
 
     with set_layer_config(scriptable=scriptable, exportable=exportable, no_jit=no_jit):
-        model = create_fn(pretrained=pretrained, **kwargs)
+        model = create_fn(pretrained=pretrained, **kwargs)  # 应该是从这里传入kwargs的参数的
 
     if checkpoint_path:
         load_checkpoint(model, checkpoint_path)
