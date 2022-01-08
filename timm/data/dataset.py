@@ -8,6 +8,7 @@ import torch
 import logging
 
 from PIL import Image
+import jpeg4py as jpeg
 
 from .parsers import create_parser
 
@@ -39,7 +40,8 @@ class ImageDataset(data.Dataset):
     def __getitem__(self, index):
         img, target = self.parser[index]
         try:
-            img = img.read() if self.load_bytes else Image.open(img).convert('RGB')
+            # img = img.read() if self.load_bytes else Image.open(img).convert('RGB')
+            img = img.read() if self.load_bytes else Image.fromarray(jpeg.JPEG(img).decode())     # 使用jpeg4py库加速读取
         except Exception as e:
             _logger.warning(f'Skipped sample (index {index}, file {self.parser.filename(index)}). {str(e)}')
             self._consecutive_errors += 1
