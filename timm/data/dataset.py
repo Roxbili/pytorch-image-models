@@ -7,8 +7,16 @@ import os
 import torch
 import logging
 
+import numpy as np
 from PIL import Image
-import jpeg4py as jpeg
+try:
+    import jpeg4py as jpeg
+except:
+    pass
+try:
+    import cv2
+except:
+    pass
 
 from .parsers import create_parser
 
@@ -28,6 +36,7 @@ class ImageDataset(data.Dataset):
             load_bytes=False,
             transform=None,
             target_transform=None,
+            img_load='PIL',
     ):
         if parser is None or isinstance(parser, str):
             parser = create_parser(parser or '', root=root, class_map=class_map)
@@ -36,12 +45,17 @@ class ImageDataset(data.Dataset):
         self.transform = transform
         self.target_transform = target_transform
         self._consecutive_errors = 0
+        self.img_load_func = {
+            'numpy': lambda img: Image.fromarray(np.load(img)),
+            'PIL': lambda img: Image.open(img).convert('RGB'),
+            'jpeg4py': lambda img: Image.fromarray(jpeg.JPEG(img).decode()),
+            'cv2': lambda img: Image.fromarray(cv2.cvtColor(cv2.imread(img), cv2.COLOR_BGR2RGB))
+        }[img_load]
 
     def __getitem__(self, index):
         img, target = self.parser[index]
         try:
-            # img = img.read() if self.load_bytes else Image.open(img).convert('RGB')
-            img = img.read() if self.load_bytes else Image.fromarray(jpeg.JPEG(img).decode())     # 使用jpeg4py库加速读取
+            img = img.read() if self.load_bytes else self.img_load_func(img)
         except Exception as e:
             _logger.warning(f'Skipped sample (index {index}, file {self.parser.filename(index)}). {str(e)}')
             self._consecutive_errors += 1

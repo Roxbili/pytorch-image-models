@@ -83,6 +83,8 @@ parser.add_argument('--dataset-download', action='store_true', default=False,
                     help='Allow download of dataset for torch/ and tfds/ datasets that support it.')
 parser.add_argument('--class-map', default='', type=str, metavar='FILENAME',
                     help='path to class to idx mapping file (default: "")')
+parser.add_argument('--img-load', default='PIL', type=str,
+                    help='image load method, one of ("numpy", "PIL", "jpeg4py", "cv2")')
 
 # Model parameters
 parser.add_argument('--model', default='resnet50', type=str, metavar='MODEL',
@@ -494,12 +496,14 @@ def main():
         class_map=args.class_map,
         download=args.dataset_download,
         batch_size=args.batch_size,
-        repeats=args.epoch_repeats)
+        repeats=args.epoch_repeats,
+        img_load=args.img_load)
     dataset_eval = create_dataset(
         args.dataset, root=args.data_dir, split=args.val_split, is_training=False,
         class_map=args.class_map,
         download=args.dataset_download,
-        batch_size=args.batch_size)
+        batch_size=args.batch_size,
+        img_load=args.img_load)
 
     # setup mixup / cutmix
     collate_fn = None
