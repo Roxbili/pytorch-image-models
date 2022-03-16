@@ -575,15 +575,6 @@ def main():
         pin_memory=args.pin_mem,
     )
 
-    if not args.prefetcher:     # 将数据一次性加载进内存，避免磁盘读取
-        start_time = time.time()
-        _logger.info('begin ader_train to memory')
-        loader_train = list(loader_train)
-        _logger.info('begin ader_eval to memory')
-        loader_eval = list(loader_eval)
-        end_time = time.time()
-        _logger.info('%s load loader time: %.3f' % (args.img_load, (end_time - start_time)))
-
     # setup loss function
     if args.jsd_loss:
         assert num_aug_splits > 1  # JSD only valid with aug splits set
